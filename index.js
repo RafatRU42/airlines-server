@@ -69,7 +69,12 @@ const client = new MongoClient(uri, {
         })
 
   
-        
+        app.get('/usersBooking',async(req,res) =>{
+          const email = req.query.email;
+          const query = {customerEmail:email};
+          const result = await bookingCollection.find(query).toArray()
+          res.send(result)
+        })
         
 
         app.post('/bookings',async(req,res) =>{
