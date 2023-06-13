@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId  } = require('mongodb');
 require('dotenv').config();
 
 const port = process.env.PORT || 5000;
@@ -51,7 +51,9 @@ function VerifyJWT(req,res,next) {
 
         const availableFlightCollection = client.db('airlines2').collection('flightCollection');
         const bookingCollection = client.db('airlines2').collection('bookings');
-        const usersCollection = client.db('airlines2').collection('users')
+        const usersCollection = client.db('airlines2').collection('users');
+        const offerCollection = client.db('airlines2').collection('offer')
+
 
         // app.get('/availableFlight',async(req,res) =>{
         //     const query = {};
@@ -147,6 +149,60 @@ function VerifyJWT(req,res,next) {
           const users = await usersCollection.find(query).toArray()
           res.send(users)
         })
+
+        // app.put('/users/admin/:id',async(req,res) =>{
+        //   const id = req.params.id;
+        //   const filter = {_id:new ObjectId(id)}
+        //   const option = {upsert:true};
+        //   const updatedDoc ={
+        //     $set  :{
+        //       role:'admin'
+        //     }
+        //   }
+        //   const result = await usersCollection.updateOne(filter,option,updatedDoc);
+        //   res.send(result)
+        // })
+
+
+        // MongoInvalidArgumentError: Update document requires atomic operators
+
+        app.put('/users/admin/:id', async (req, res) => {
+          const id = req.params.id;
+          const filter =  { _id: new ObjectId(id) };
+          const option = {upsert: true};
+          const updatedDoc = {
+            $set: {
+              role: 'admin'
+            }
+          };
+          
+          const result = await usersCollection.updateOne(filter, updatedDoc, option);
+          res.send(result);
+        });
+
+
+          // useAdmin hook every time call this following method with different emails
+          // Check the user is an Admin= Output: true/false =>
+        app.get('/users/admin/:email',async(req,res)=>{
+          const email = req.params.email;
+          const query = {email:email};
+          const user = await usersCollection.findOne(query);
+          res.send({isAdmin: user?.role === 'admin'})
+        })
+
+        app.get('/flightName',async(req,res) =>{
+          const query = {};
+          const result = await availableFlightCollection.find(query).project({name:1}).toArray()
+          res.send(result)
+        })
+
+
+        app.post('/addOffer/admin',async(req,res) =>{
+          const data = req.body;
+          const result = await offerCollection.insertOne(data);
+          res.send(result)
+        })
+        
 
 
     }
