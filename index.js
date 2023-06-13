@@ -136,7 +136,8 @@ function VerifyJWT(req,res,next) {
           const query = {email:email};
           const user = await usersCollection.find(query).toArray()
           if(user) {
-                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN)
+                // { expiresIn: '1h' }
             return res.send({accessToken: token})
           }
           else{
@@ -200,6 +201,12 @@ function VerifyJWT(req,res,next) {
         app.post('/addOffer/admin',async(req,res) =>{
           const data = req.body;
           const result = await offerCollection.insertOne(data);
+          res.send(result)
+        })
+
+        app.get('/allOffers',async(req,res) =>{
+          const query = {};
+          const result = await offerCollection.find(query).toArray();
           res.send(result)
         })
         
