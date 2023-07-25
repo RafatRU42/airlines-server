@@ -222,6 +222,37 @@ async function run() {
       res.send(result)
     })
 
+
+
+        app.post('/payment',async(req,res) =>{
+      const data = req.body;
+      const result = await paymentCollection.insertOne(data);
+      const id = data._id;
+      const filter = {_id: new ObjectId(id)};
+      //  updatedDoc = 
+      // {
+      //   $set:{
+      //     paid:true,
+      //     transactionId : data.transactionId,
+      //   }
+      // }
+
+      const option = {upsert:true};
+
+       const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId:data.transactionId
+        }
+      };
+     
+      const update = await bookingCollection.updateOne(filter,option,updatedDoc)
+      res.send(result)
+    })
+
+
+
+
     app.delete('/allOffers/selected/:id', async (req, res) => {
       const id = req.params.id;
       console.log('object', id);
@@ -289,21 +320,64 @@ async function run() {
     });
 
 
-    app.post('/payment',async(req,res) =>{
-      const data = req.body;
-      const result = await paymentCollection.insertOne(data);
-      const id = data._id;
-      const filter = {_id: new ObjectId(id)};
-      const option = {upsert:true};
-      updatedDoc= {
-        $set:{
-          paid:true,
-          transactionId : data.transactionId,
-        }
-      }
-      const update = await bookingCollection.updateOne(filter,updatedDoc,option)
+
+
+    app.get('/offer/:id',async(req,res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await offerCollection.findOne(query)
       res.send(result)
     })
+
+
+    // app.get('/offerType',async(req,res) =>{
+    //   const type1 = req.query.type
+    //   console.log('object',type1);
+    //   const query = {type:type1}
+    //   const result = await offerCollection.find(query).toArray()
+    //   res.send(result)
+    // })
+
+
+
+    app.get('/carOffer',async(req,res) =>{
+      const query = {type:'Car Offers'}
+      const result = await offerCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/hotelOffer',async(req,res) =>{
+      const query = {type:'Hotel Offers'}
+      const result = await offerCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
+    
+    app.get('/otherOffer',async(req,res) =>{
+      const query = {type:'Other Offers'}
+      const result = await offerCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
+
+    app.get('/sessionalOffer',async(req,res) =>{
+      const query = {type:'Sessional Offers'}
+      const result = await offerCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
+
+    app.get('/vacationOffer',async(req,res) =>{
+      const query = {type:'Vacation Offers'}
+      const result = await offerCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
+
 
 
   }
